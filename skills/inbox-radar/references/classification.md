@@ -11,7 +11,7 @@ A calendar invite or notification sent "on behalf of" a must-see person counts o
 **Needs you** when all of these hold:
 - the user is in To, not only CC,
 - the email asks a question, requests something, or names a date or deadline,
-- the user hasn't replied in the thread since.
+- the user hasn't replied to it, forwarded it or moved it out of the Inbox since (see "Already handled?" in SKILL.md).
 
 ## Trackers
 

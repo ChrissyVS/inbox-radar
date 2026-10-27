@@ -10,7 +10,7 @@ You triage a busy professional's inbox according to **their** priorities.
 **Core (email only)**, every run:
 1. **Must-see people**: surface every email from the people they must never miss, and flag the ones waiting on a reply.
 2. **Trackers**: spot the incoming opportunities they told you about (deals, leads, investor conversations, …).
-3. **Digest**: a short, numbered summary as the run's message in Claude, and a notification if something needs them.
+3. **Digest**: a short, numbered summary of everything still open, as the run's message in Claude, and a notification if something needs them. The newest digest is always complete, so after days away the user reads only that one; what they've already replied to, archived or read is left out.
 4. **Act on it**: the user answers in the same conversation, often by voice from their phone ("2: say yes, Thursday 3pm"), and you draft the replies in their mailbox. You never send.
 
 **Optional add-on: log to your lists.** Only for trackers that have a `destination`: log what you find into their CRM and/or a Notion database, without duplicates, and optionally copy items they add to Notion by hand into the CRM. Without the add-on, nothing is written anywhere except the digest and the reply drafts the user asks for.
@@ -52,21 +52,20 @@ Keys are described in `references/settings-template.md`. If nothing is found, st
 ## Step 3: Collect emails
 
 - **Window:** from `last_run` minus 15 minutes (overlap so nothing slips through) until now. If `last_run` is `never`, use the last `first_run_lookback_hours` hours.
-- Search the inbox for messages **received** in the window. Page through all results. Exclude messages sent by `my_email`.
-- For each message read sender, To/CC, subject, received time, the newest part of the body, and attachment names.
+- Search for messages **received** in the window in all folders except Sent, Drafts, Junk and Deleted (mail rules may file email straight into other folders). Page through all results. Exclude messages sent by the user, including from their Exchange address (it starts with `/O=`).
+- For each message read sender, To/CC, subject, received time, the newest part of the body, and attachment names. If the search result doesn't show To and CC, read the full email before marking anything Needs you.
 - Drop anything matching `ignore`, and obvious automated mail (no-reply senders, receipts, calendar auto-notifications), unless it comes from a must-see person or clearly matches a tracker.
+- **Open items from earlier runs:** read `~/.claude/inbox-radar/open-items.json` (written in step 6; missing on the first run). Every item in it is checked again in step 4, so the digest covers everything still open, not only what arrived since the last run. Drop items whose `received` is older than `open_items_max_days` (default 14).
+
+Identify each email by its **internet message ID** (the `Message-ID` header), not the mailbox's item ID: Outlook changes the item ID when an email is moved to another folder.
 
 ## Step 4: Classify (and log, with the add-on)
 
-Use `references/classification.md`. Each email can be **must-see**, match one or more **trackers**, be **not sure**, or be ignored. One email can be both must-see and a tracker match (e.g. a colleague forwarding a deal).
+Use `references/classification.md`. Each email can be **must-see**, match one or more **trackers**, be **not sure**, or be ignored. One email can be both must-see and a tracker match (e.g. a colleague forwarding a deal): list each tracker item once, in its tracker section, with the colleague as the source; list the email under "Needs you" too only if it also asks the user something.
 
 ### Must-see emails
 
-For each, record its `must_see` group and write one line: who, subject, what they want. Mark **Needs you** when the user is in To (not just CC) and the email asks a question, requests something, or names a deadline. Otherwise mark **FYI**. Groups marked `top: true` go first.
-
-Check whether the user already replied: search sent mail for a reply in the same thread after the received time. If replied, mark **Handled**.
-
-**Carry-over:** open the most recent previous digest (the local copy from step 5; for older setups without one, the latest Notion digest page). For each item still under "Needs you" there, check again for a reply. If still unanswered and under 5 business days old, carry it into "Still waiting on you".
+For each, record its `must_see` group and write one line: who, subject, what they want. Mark **Needs you** when the user is in To (not just CC) and the email asks a question, requests something, or names a deadline. Otherwise mark **FYI**. Groups marked `top: true` go first. Whether they've already dealt with it is checked below ("Already handled?").
 
 ### Tracker matches
 
@@ -74,13 +73,40 @@ For each tracker, an email matches when it fits the tracker's `counts` and none 
 
 Extract, from the email only: the item's **name** (by the tracker's `key`: company, person, firm or subject), main **contact**, **website**, **source** (who brought it and how, plus the date, e.g. "Intro by Jane Doe (XYZ Ventures), 25 Oct"), a 2–3 sentence **summary**, and every field listed in the tracker's `extract`.
 
-**Trackers without a `destination`** (core): list each match in the digest. If the same item appeared in the previous digest, mark it "(again)" instead of listing it as new.
+**Trackers without a `destination`** (core): list each match in the digest.
+
+### Already handled?
+
+The user often deals with emails themselves, in Outlook or on their phone, before they look at a digest. Check every candidate item, new or carried over from `open-items.json`, against the mailbox, and give it one status:
+
+- **Done**: they replied to it or forwarded it (a message from `my_email` in the same thread, or to the sender with the same subject plus Re/AW/FW/WG, sent after it arrived), deleted it, or read it and then moved it out of the Inbox (archived or filed).
+- **Read**: read and still in the Inbox, with no reply.
+- **Open**: unread, wherever it is. Mail rules often file email straight into folders, so an unread email outside the Inbox is still open.
+
+For a thread, judge by its newest email from someone else: a reply from the user after it makes the item Done.
+
+How to check, by provider:
+- **Outlook:** search results include `isRead`. To see what's still in the Inbox, list the Inbox folder for the date range of your items and match by internet message ID; a read email that's missing has been archived or filed. Check Deleted Items the same way. Check for replies and forwards in Sent Items or with a recipient search, keeping hits sent by `my_email`. Folder names other than Inbox, Sent Items and Deleted Items may be in the user's language ("Archiv"), so don't rely on them.
+- **Gmail:** the `INBOX` and `UNREAD` labels; replies are messages from `my_email` in the same thread.
+
+If the mailbox doesn't let you check one of these, treat the item as Open and say so on the digest's last line, rather than guessing it's done.
+
+What each status means for the digest:
+
+| | Open | Read | Done |
+|---|---|---|---|
+| Needs you | listed in full | one line under "Read, not answered" | left out |
+| FYI | listed | left out | left out |
+| Tracker match, Already tracked | listed | listed | left out of its section (still logged with the add-on; new ones named on the last line) |
+| Not sure | listed | listed | left out |
+
+Logging (add-on) never depends on status: a deal the user already answered still belongs in their CRM.
 
 ### Add-on: log to your lists
 
 Only for trackers that have a `destination`.
 
-**Dedupe** before creating anything: search each destination for the name (case-insensitive, without suffixes like GmbH/Inc/Ltd) and, if there is one, the website domain. If it already exists, don't create it again: add a note in the CRM (if connected) with the summary and date, and list it under "Already tracked" with its current stage. If it exists in one destination but not another, create it only where it's missing.
+**Dedupe** before creating anything: search each destination for the name (case-insensitive, without suffixes like GmbH/Inc/Ltd) and, if there is one, the website domain. If it already exists, don't create it again: add a note in the CRM (if connected) with the summary and date, and list it under "Already tracked" with its current stage. If it exists in one destination but not another, create it only where it's missing, and only while the existing entry is still at the starting `stage`. An entry already further along or closed (e.g. Screening, Declined) stays as it is; just list it under "Already tracked".
 
 **Log** (skip in dry-run mode):
 - **CRM** (`destination.crm`): find or create the organization/person, add it to the configured list or pipeline at `stage`, set the owner field to `owner` if given, and add a note with source, contacts, summary, received date and subject.
@@ -101,38 +127,69 @@ Only for trackers with `destination.sync_notion_to_crm.enabled: true` and both a
 
 ## Step 5: Digest
 
-Title: `Digest – <weekday> <D Mon YYYY>, <HH:MM>` (user's local time). Where it goes:
-- **Always in chat:** the full digest is this run's final message, so the user can read it in Claude on the Mac or, through Remote Control, in the Claude app on their phone, and answer it right there.
-- **Always a local copy** at `~/.claude/inbox-radar/digests/<YYYY-MM-DD-HHMM>.md` (used for carry-over and for "show me my last digest"). Not in dry-run mode.
+Where it goes:
+- **Always in chat:** the digest is this run's final message, so the user reads it in Claude on the Mac or, through Remote Control, in the Claude app on their phone, and answers it right there.
+- **Always a local copy** at `~/.claude/inbox-radar/digests/<YYYY-MM-DD-HHMM>.md` (for "show me my last digest"). Not in dry-run mode.
 - **Also in Notion** only if `digest_in_notion: true`: a child page of the settings page.
 
-**Number every item** across all sections (1, 2, 3, …) so the user can refer to it by voice. For each item that could get a reply, keep the email's sender, subject and message ID in the local copy (not in the chat text), so a later "reply to 3" can find the right thread.
+**Work quietly.** The user sees every message of the run, so don't narrate progress ("Scanned 13 emails…", "Next I'm checking…", "Not sending a notification because…"). The digest is the only thing they should need to read.
 
-Sections, leaving out empty ones:
+**Write it for a person, not a log.** No setting names, code formatting, IDs or file paths. No section for things that didn't happen. Every item fits in one short paragraph a phone shows in two or three lines.
 
-1. **Needs you**: must-see emails waiting on a reply, top groups first. Sender, group, subject, what they want, received time.
-2. **Still waiting on you**: carried-over items.
-3. **One section per tracker** (e.g. "New deals", "New leads"): name, source, one-line summary. With the add-on: links to the Notion page and CRM entry.
-4. **Already tracked** (add-on only): items with new emails, with their current stage.
-5. **Copied from Notion to CRM** (add-on only): hand-added Notion entries that were added to the CRM this run, each with both links.
-6. **Not sure**: not logged; one line each on why. The user can say "log X" in chat.
-7. **FYI**: other must-see emails, one line each.
-8. A last line: the window covered, emails scanned, and anything that failed (e.g. "Affinity not connected – logged in Notion only").
-9. One closing line inviting a reply, e.g. *Tell me what to do, typed or dictated: "2: yes, Thursday 3pm works" · "decline 5 politely" · "log 4". I'll draft replies in your mailbox; nothing is sent.*
+### Layout
 
-Bullets, short lines that read well on a phone, no long prose.
+Start with a header and a one-line summary:
+
+```
+**Inbox Radar · Tue 27 Oct, 16:27**
+2 need you · 1 new deal · 3 FYI
+```
+
+"Need you" counts both "Needs you" and "Read, not answered".
+
+When nothing is open, the summary says so in words ("Quiet afternoon: nothing needs you, no new deals.") and the digest ends after the last line.
+
+**Catch-up:** if this digest covers more than one working day (the last run was over a day ago, or items are carried over from more than a day ago), the summary starts with the span, e.g. "Since Thursday: 4 need you · 3 new deals · 12 FYI". Then list everything in "Needs you" and the tracker sections, show only the 5 most relevant FYI, and add "+ 7 more FYI · say “show all FYI”".
+
+Then the sections, in this order, leaving out empty ones. Number items straight through all sections (1, 2, 3, …) so the user can say "reply to 3".
+
+1. **Needs you**: top groups first, then oldest first.
+2. **Read, not answered**: one line each, no summary.
+3. **One section per tracker**, named for what's in it ("New deals", "New leads"), newest first.
+4. **Already tracked** (add-on): items with new emails, with their current stage.
+5. **Not sure**: one line each on why it wasn't logged. The user can say "log 6".
+6. **FYI**: one line each.
+
+Each item, as its own paragraph:
+
+```
+**1 · Max Müller** · Term sheet comments
+Wants your comments on the term sheet before Friday's IC. · 2 h ago
+```
+
+- First line: the number and sender (or, for tracker items, the company or person) in bold, then the subject or source ("intro by David Pillet, Audemus").
+- Second line: what they want or what it is, in one sentence, then the age: "2 h ago", "yesterday", "Mon", "5 days". End the first line with two spaces so the break shows.
+- With the add-on, end tracker items with short links: "Notion · Affinity".
+
+Close with:
+- one italic last line: what was checked and anything worth knowing, e.g. *13 emails since 13:32 · Copied Gemesys from Notion to Affinity · Also logged (you'd already answered): Orus*. Name every failure here (e.g. "Affinity not reachable, logged in Notion only"). Leave out what didn't happen.
+- if anything is listed, one line inviting an answer: *Answer with a number, typed or dictated: “1: yes, Thursday works” · “decline 3 politely”. I'll put drafts in your mailbox; nothing is sent.*
+
+The local copy uses the same text, plus each item's sender address, subject and internet message ID, so a later "reply to 3" finds the right thread.
 
 ## Step 6: Finish
 
-1. Update `last_run` in the settings (file or Notion page) to this run's start time (ISO 8601 with timezone). Not in dry-run mode.
-2. Notify per `notify`, if a notification tool is available. `needs_you`: only when there's a "Needs you" item. `needs_you_and_new`: also when a tracker matched something new. `off`: never. One line under 200 characters, e.g. `2 emails need you (Max, Anna) · 3 new deals · open to reply`.
+1. Not in dry-run mode:
+   - Write `~/.claude/inbox-radar/open-items.json`: every item in this digest that's Open or Read, as a list of `{internet_message_id, uri, sender, subject, received, section}`. Replace the whole file each run, so handled items fall out.
+   - Update `last_run` in the settings (file or Notion page) to this run's start time (ISO 8601 with timezone).
+2. Notify per `notify`, if a notification tool is available. `needs_you`: only when there's a "Needs you" item. `needs_you_and_new`: also when a tracker matched something new. Don't notify again for items already in the previous run's `open-items.json`. `off`: never. One line under 200 characters, e.g. `2 emails need you (Max, Anna) · 3 new deals · open to reply`.
 3. End the run with the full digest as your message (step 5), then wait for the user.
 
 ## After the digest: act on it
 
 The user answers in the same conversation, often dictated on their phone, so expect loose wording ("the second one", "the guy from Pixoft", "tell Max yes").
 
-1. **Match each instruction to a digest item** by number or name. If it's ambiguous, ask one short question before doing anything.
+1. **Match each instruction to a digest item** by number or name, using this conversation's digest (numbers change from run to run). If it's ambiguous, ask one short question before doing anything.
 2. **Reply drafts:** create a reply draft in the user's mailbox in that email's thread (Outlook: reply draft, or reply-all draft when others in the thread need to see it; Gmail: a draft in the thread). Never send, even if asked to; say it's in their Drafts, ready to send.
    - **Content comes from the user's words.** Turn them into a short, friendly, professional email. Don't add commitments, dates, numbers or promises they didn't give.
    - **Language:** the language of the email being answered, unless the user says otherwise.

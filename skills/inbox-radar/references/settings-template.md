@@ -5,7 +5,7 @@ Settings are YAML. They live in one of two places (`home`):
 - `local` (default): the file `~/.claude/inbox-radar/settings.yaml`. Digests go to `~/.claude/inbox-radar/digests/`.
 - `notion`: the YAML block under "Settings" on a Notion page titled exactly **Inbox Radar – Settings & Digests**.
 
-Either way, each digest is the run's message in Claude, with a local copy in `~/.claude/inbox-radar/digests/`. With `digest_in_notion: true` it's also saved as a child page of the Notion settings page.
+Either way, each digest is the run's message in Claude, with a local copy in `~/.claude/inbox-radar/digests/`. The list of still-open items, which keeps the newest digest complete, lives in `~/.claude/inbox-radar/open-items.json`. With `digest_in_notion: true` it's also saved as a child page of the Notion settings page.
 
 ## Core settings (email only)
 
@@ -39,6 +39,7 @@ ignore: newsletters; event marketing; recruiters
 notify: needs_you_and_new      # needs_you | needs_you_and_new | off
 digest_in_notion: false        # true = also save each digest as a Notion page
 first_run_lookback_hours: 24
+open_items_max_days: 14        # how long an unanswered item stays in the digest
 
 # Updated automatically after each run. Don't edit.
 last_run: never
@@ -108,6 +109,7 @@ New digest pages appear below.
 | `ignore` | Kinds of email never to surface, in plain words. |
 | `notify` | When to send a notification. |
 | `first_run_lookback_hours` | How far back the very first run looks. |
+| `open_items_max_days` | How many days an unanswered email keeps showing in the digest. Default 14. |
 | `last_run` | Timestamp of the last successful run. Written by the skill. |
 
 ### Tracker keys
