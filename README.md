@@ -42,6 +42,14 @@ Want logging into your CRM or Notion? Say **"add logging to inbox radar"**, duri
 - "change my inbox radar priorities": rerun part of the interview
 - "add logging to inbox radar": set up the optional add-on
 
+## Make it your own
+
+Inbox Radar is free and open source under the [MIT license](LICENSE): download it, copy it, change it and share your version however you like.
+
+- **To adapt it,** fork this repo (or download it), edit the files in `skills/inbox-radar/`, and install your copy with `/plugin marketplace add <your-github-user>/<your-repo>`.
+- **This repo is maintained by me.** Your changes live in your own copy; this version only changes when I update it. Ideas and fixes are welcome as issues or pull requests.
+- **If you share your own version,** please give it a different name so people don't mix it up with this one.
+
 ## Files
 
 ```
@@ -49,4 +57,5 @@ Want logging into your CRM or Notion? Say **"add logging to inbox radar"**, duri
 .claude-plugin/marketplace.json     lets people install straight from this repo
 skills/inbox-radar/SKILL.md         the workflow
 skills/inbox-radar/references/      setup interview, role presets, classification rules, settings template
+LICENSE                             MIT
 ```

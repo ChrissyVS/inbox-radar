@@ -1,9 +1,10 @@
 {
   "name": "inbox-radar",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Inbox triage tuned to your priorities: never miss the people who matter, and spot the opportunities you care about (deals, leads, investor conversations, requests). Needs only your email; optional add-on logs them into your CRM and/or Notion. Built for VCs, angels, founders, sales/BD and operators.",
   "author": {
     "name": "Christina Vogt-Sasse"
   },
+  "license": "MIT",
   "keywords": ["inbox", "email triage", "venture capital", "deal flow", "founders", "sales", "crm", "notion", "outlook", "gmail"]
 }
