@@ -49,10 +49,16 @@ Check for an email connector: Microsoft 365 (Outlook) or Gmail. If missing, tell
 
 ### 6. Where settings and digests live
 
-- **On this computer** (default, `home: local`): settings in `~/.claude/inbox-radar/settings.yaml`, digests in `~/.claude/inbox-radar/digests/`. Tell them where the file is and that they can edit it or just ask you to change things.
-- **In Notion** (`home: notion`): only if they have Notion connected and want to read digests or edit settings there. Ask where the page should live, then create **Inbox Radar – Settings & Digests** from `settings-template.md`.
+- **On this computer** (default, `home: local`): settings in `~/.claude/inbox-radar/settings.yaml`. Tell them where the file is and that they can edit it or just ask you to change things.
+- **In Notion** (`home: notion`): only if they have Notion connected and want to edit settings there. Ask where the page should live, then create **Inbox Radar – Settings & Digests** from `settings-template.md`. Ask whether they also want each digest saved as a Notion page (`digest_in_notion`); default no.
 
-Write the settings from their answers, using `settings-template.md`.
+Either way, the digest itself arrives as the run's message in Claude. Ask for the first name to sign reply drafts with (`my_name`). Write the settings from their answers, using `settings-template.md`.
+
+### 6b. On your phone (optional)
+
+Explain: with **Remote Control** on, each run's digest also reaches the Claude app on their phone, with a push when something needs them, and they can answer it there by voice (the microphone on the phone keyboard): "2: yes, Thursday works". Claude drafts the replies in their mailbox; nothing is sent.
+
+To set it up: in the Claude desktop app, **Settings → Claude Code → Connect new sessions to Remote Control** on; sign in to the Claude app on the phone with the same account and allow notifications. On Team or Enterprise plans an Owner must first enable Remote Control at `claude.ai/admin-settings/claude-code`. If it's blocked ("disabled by your organization's policy"), tell them who to ask and carry on without it.
 
 ### 7. Dry run
 
@@ -62,7 +68,7 @@ Run in dry-run mode over the last 24 hours and show the digest in chat. Ask: any
 
 Create a scheduled task with their schedule and this prompt (fill in the location):
 
-> Run the inbox-radar skill in normal mode. Settings: <settings file path or Notion page URL>. Work through all steps without asking questions; if something needs a decision, put it in the digest under "Not sure" or the last line.
+> Run the inbox-radar skill in normal mode. Settings: <settings file path or Notion page URL>. Work through all steps without asking questions; if something needs a decision, put it in the digest under "Not sure" or the last line. End with the full numbered digest as your message. If the user then answers (often dictated from their phone), follow "After the digest: act on it": draft replies in their mailbox, never send.
 
 Tell them it only runs while the Claude desktop app is open; a missed run catches up on next launch, and the overlap makes that safe. They can also run it anytime with `/inbox-radar` or "run my inbox radar".
 

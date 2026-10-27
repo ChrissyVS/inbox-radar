@@ -3,7 +3,9 @@
 Settings are YAML. They live in one of two places (`home`):
 
 - `local` (default): the file `~/.claude/inbox-radar/settings.yaml`. Digests go to `~/.claude/inbox-radar/digests/`.
-- `notion`: the YAML block under "Settings" on a Notion page titled exactly **Inbox Radar – Settings & Digests**. Digests are created as its child pages.
+- `notion`: the YAML block under "Settings" on a Notion page titled exactly **Inbox Radar – Settings & Digests**.
+
+Either way, each digest is the run's message in Claude, with a local copy in `~/.claude/inbox-radar/digests/`. With `digest_in_notion: true` it's also saved as a child page of the Notion settings page.
 
 ## Core settings (email only)
 
@@ -13,6 +15,7 @@ Fill these from the setup interview. Example values are for a VC; replace them:
 home: local                    # local | notion
 role: vc                       # vc | angel | founder | sales | operator | other
 my_email: you@yourfund.com
+my_name: Alex                  # used to sign reply drafts
 
 # People you must never miss
 must_see:
@@ -34,6 +37,7 @@ ignore: newsletters; event marketing; recruiters
 
 # Behaviour
 notify: needs_you_and_new      # needs_you | needs_you_and_new | off
+digest_in_notion: false        # true = also save each digest as a Notion page
 first_run_lookback_hours: 24
 
 # Updated automatically after each run. Don't edit.
@@ -97,6 +101,8 @@ New digest pages appear below.
 | `home` | Where settings and digests live: `local` or `notion`. |
 | `role` | Which preset setup started from. Informational. |
 | `my_email` | The user's address. Their own emails are skipped; used to find their replies. |
+| `my_name` | The first name used to sign reply drafts. |
+| `digest_in_notion` | Also save each digest as a Notion page (needs `home: notion` or a Notion connection). Default `false`. |
 | `must_see` | Groups of people never to miss, by `domains` and/or exact `addresses`. `top: true` lists a group first. |
 | `trackers` | Kinds of incoming opportunity to capture. See below. |
 | `ignore` | Kinds of email never to surface, in plain words. |

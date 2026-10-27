@@ -6,13 +6,16 @@ A Claude plugin that triages your inbox according to **your** priorities.
 
 - **finds every email from the people you must never miss** (your team, investors, key clients, your boss) and flags the ones waiting on your reply,
 - **spots the opportunities you care about**: deals, leads, investor conversations, partnership requests, requests with deadlines,
-- **gives you a short digest** and pings you when something needs you.
+- **gives you a short, numbered digest** right in Claude and pings you when something needs you,
+- **drafts your replies**: answer the digest by typing or dictating on your phone ("2: yes, Thursday works") and it writes the drafts in your mailbox. It never sends.
 
 **Optional add-on: log to your lists.** If you want, it also logs what it finds into your CRM (Affinity, Attio, HubSpot, …) and/or a Notion database, without duplicates, and can copy deals you add to Notion by hand into your CRM.
 
 Setup starts with a short interview about your role and priorities. It comes with starting points for VCs, angels and scouts, founders, sales/BD and operators, and works for any other role too.
 
-It only reads your email. It never sends, replies to, moves or deletes anything.
+It never sends, moves or deletes anything in your mailbox. The only thing it writes there are reply drafts you asked for.
+
+**On your phone:** turn on Remote Control and the digest (with a push notification) reaches the Claude app on your phone, where you can answer it by voice.
 
 ## What you need
 
