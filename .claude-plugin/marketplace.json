@@ -1,0 +1,16 @@
+{
+  "name": "inbox-radar",
+  "owner": {
+    "name": "Christina Vogt-Sasse"
+  },
+  "metadata": {
+    "description": "Inbox Radar: inbox triage for investors, founders, sales/BD and operators."
+  },
+  "plugins": [
+    {
+      "name": "inbox-radar",
+      "source": "./",
+      "description": "Never miss the people who matter; capture deals, leads and requests into your CRM and Notion."
+    }
+  ]
+}
