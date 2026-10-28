@@ -16,6 +16,7 @@ home: local                    # local | notion
 role: vc                       # vc | angel | founder | sales | operator | other
 my_email: you@yourfund.com
 my_name: Alex                  # used to sign reply drafts
+voice_guide: none              # optional: Notion page URL or file path describing how you write
 
 # People you must never miss
 must_see:
@@ -103,6 +104,7 @@ New digest pages appear below.
 | `role` | Which preset setup started from. Informational. |
 | `my_email` | The user's address. Their own emails are skipped; used to find their replies. |
 | `my_name` | The first name used to sign reply drafts. |
+| `voice_guide` | Optional. A Notion page or file describing how the user writes, built from their sent emails (setup step 6c). Reply drafts follow it. |
 | `digest_in_notion` | Also save each digest as a Notion page (needs `home: notion` or a Notion connection). Default `false`. |
 | `must_see` | Groups of people never to miss, by `domains` and/or exact `addresses`. `top: true` lists a group first. |
 | `trackers` | Kinds of incoming opportunity to capture. See below. |
