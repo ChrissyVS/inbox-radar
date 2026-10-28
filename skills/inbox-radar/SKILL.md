@@ -106,11 +106,28 @@ Logging (add-on) never depends on status: a deal the user already answered still
 
 Only for trackers that have a `destination`.
 
-**Dedupe** before creating anything: search each destination for the name (case-insensitive, without suffixes like GmbH/Inc/Ltd) and, if there is one, the website domain. If it already exists, don't create it again: add a note in the CRM (if connected) with the summary and date, and list it under "Already tracked" with its current stage. If it exists in one destination but not another, create it only where it's missing, and only while the existing entry is still at the starting `stage`. An entry already further along or closed (e.g. Screening, Declined) stays as it is; just list it under "Already tracked".
+**Identify the company** first (trackers whose `key` is `company` or `firm`). The website is what lets the CRM recognise a company it already knows, so a name alone is not enough. Find the domain, in this order, and stop at the first confident answer:
+1. **The email:** the founders' or company's own addresses in From, To or CC (`vincent@orus.space` → `orus.space`), or the company's URL in the body or signature. Never use the introducer's domain, the user's own, webmail (gmail, outlook, …) or file hosts (docsend, drive, dropbox, notion.site, …).
+2. **The CRM's company database:** search it by name, together with what the company does. Many CRMs (Affinity, HubSpot) already hold an enriched record with the website, even for companies nobody at the firm has touched. Accept it only when its description fits the email (sector, product, country).
+3. **The web** (if a web search tool is available): search the name plus what it does and where. Accept the official site only when it clearly describes the company from the email.
+
+If nothing fits confidently, leave the website empty and say "no website found" on the item; never guess. If two different companies plausibly fit, don't log; list it under "Not sure".
+
+Also write a **pitch**: one line, at most 15 words, saying what the company does ("Hyperspectral Earth-observation satellites that identify materials from orbit"), from the email only.
+
+**Dedupe** before creating anything. Look in each destination by domain (if known) and by name, matching names loosely: case-insensitive, ignoring legal suffixes (GmbH, AG, Inc, Ltd, SAS, …) and generic words (Technologies, Labs, Systems, AI, Robotics, Space, …), so "ORUS" matches "Orus" and "Gemesys" matches "GEMESYS Technologies". Check right before you write, not only at the start of the run: a colleague may have added it in the meantime.
+- **Already on the list or in the database:** don't add it again. Add a note in the CRM (if connected) with the summary and date, and list it under "Already tracked" with its current stage and who owns it.
+- **On the list twice** (two entries that look like the same company, e.g. one with a website and one without): don't merge or delete anything; say so on the item ("on the list twice") so the user can clean it up.
+- **In one destination but not another:** create it only where it's missing, and only while the existing entry is still at the starting `stage`. An entry already further along or closed (e.g. Screening, Declined) stays as it is; just list it under "Already tracked".
+- **Looks like it, but not sure** (similar name, different website or description): don't create anything; list it under "Not sure".
 
 **Log** (skip in dry-run mode):
-- **CRM** (`destination.crm`): find or create the organization/person, add it to the configured list or pipeline at `stage`, set the owner field to `owner` if given, and add a note with source, contacts, summary, received date and subject.
-- **Notion** (`destination.notion`): create a page in the database using its `field_map`. Title → name; stage → `stage`; owner → `owner_user_id`; other mapped fields → extracted values. Select fields only take exact existing options, mapping obvious synonyms ("UK" → "United Kingdom"); no match means empty. Numbers only when a single clear figure is stated. Page body: a short "From the email" section with sender, date, subject, contacts, attachment names and summary. Never the full email.
+- **CRM** (`destination.crm`):
+  1. Use the existing company record if the CRM has one (by domain first, then by a name and description that fit). Create a new company only when none exists, and always with its domain when you know it. Never create a second company record for a domain the CRM already has.
+  2. Add it to the configured list or pipeline.
+  3. Fill the entry's fields using `crm.field_map` (skill field → CRM column): the status column → `stage`, the owner column → `owner`, and the other mapped fields → extracted values (`pitch`, `round`, `round_size`, …). Without a `field_map`, set only stage and owner. Dropdowns only take exact existing options, mapping obvious synonyms ("Series-A" → "Series A"); no match means empty. Numbers only when a single clear figure is stated, written in full (€15M → 15000000); if `crm.currency` is set and the email states a different currency, leave the number empty and keep the figure in the note. Only fill empty fields; never overwrite what a person or an enrichment tool has already filled.
+  4. Add a note with source, contacts, summary, received date and subject.
+- **Notion** (`destination.notion`): create a page in the database using its `field_map`. Title → name; stage → `stage`; owner → `owner_user_id`; other mapped fields → extracted values (website from "Identify the company"). Select fields only take exact existing options, mapping obvious synonyms ("UK" → "United Kingdom"); no match means empty. Numbers only when a single clear figure is stated. Page body: a short "From the email" section with sender, date, subject, contacts, attachment names and summary. Never the full email.
 
 Record links to everything you created.
 
@@ -120,10 +137,11 @@ Only for trackers with `destination.sync_notion_to_crm.enabled: true` and both a
 
 1. Query the tracker's Notion database for pages whose stage is `sync_notion_to_crm.stage` and that were created on or after `sync_notion_to_crm.since`.
 2. Skip pages that aren't filled in yet: an empty title, or a template default like "New Deal", "Untitled" or "New page". They'll be picked up on a later run once named. If `sync_notion_to_crm.owners` is set, also skip pages whose owner field doesn't include one of those Notion user IDs.
-3. Look each remaining page up in the CRM list by domain (if the page has a website) and by name. Names match loosely: case-insensitive, ignoring legal suffixes (GmbH, AG, Inc, Ltd, SAS, …) and generic words (Technologies, Labs, Systems, AI, Robotics, …), so "Gemesys" matches "GEMESYS Technologies". Already on the list: do nothing.
-4. If a CRM entry looks like it might be the same company but you're not sure, don't create anything; list it under "Not sure" in the digest.
-5. Clearly not on the list (skip writing in dry-run mode): find the company in the CRM by name or domain, or create it if it doesn't exist (name, plus domain from the page's website if there is one). Add it to the list at the CRM `stage`, set `owner` if given, and add a note: "Added from Notion by Inbox Radar" with the Notion page link and its summary field if filled.
-6. Never change the Notion page and never copy anything from the CRM back to Notion. This is one-way.
+3. If the page has no website, find it as in "Identify the company" above (steps 2 and 3, using the page's name, sector and geography). Same rule: only a confident match.
+4. Look each remaining page up in the CRM list by domain and by name, matching names loosely as in "Dedupe" above. Already on the list: do nothing.
+5. If a CRM entry looks like it might be the same company but you're not sure, don't create anything; list it under "Not sure" in the digest.
+6. Clearly not on the list (skip writing in dry-run mode): use the existing company record or create one, exactly as in "Log → CRM" above (domain from the page's website or from step 3). Add it to the list and fill the fields through `crm.field_map` from the page's values (round, round size; pitch only from a one-line summary). Add a note: "Added from Notion by Inbox Radar" with the Notion page link, the website if you found it yourself, and the page's summary field if filled.
+7. Never change the Notion page and never copy anything from the CRM back to Notion. This is one-way.
 
 ## Step 5: Digest
 
