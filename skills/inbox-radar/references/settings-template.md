@@ -42,6 +42,11 @@ digest_in_notion: false        # true = also save each digest as a Notion page
 first_run_lookback_hours: 24
 open_items_max_days: 14        # how long an unanswered item stays in the digest
 
+# Privacy (defaults apply when these are missing)
+attachments: redact            # redact = never opened, never named anywhere | names = file names may appear
+confidential_terms: [confidential, vertraulich, strictly private, under NDA, subject to NDA, do not forward, do not share, nicht weiterleiten, privileged]
+keep_digests_days: 30          # local digest copies older than this are deleted
+
 # Updated automatically after each run. Don't edit.
 last_run: never
 ```
@@ -119,6 +124,9 @@ New digest pages appear below.
 | `notify` | When to send a notification. |
 | `first_run_lookback_hours` | How far back the very first run looks. |
 | `open_items_max_days` | How many days an unanswered email keeps showing in the digest. Default 14. |
+| `attachments` | `redact` (default): attachments are never opened and only counted, never named, in the digest, CRM or Notion. `names`: file names may appear. Attachments are never opened either way. |
+| `confidential_terms` | Words that, when the sender uses them about the email itself (subject or their own text), mark it as confidential. Signature disclaimers, an NDA still to come ("data room after an NDA") and attachment labels don't count. Such emails are shown in the digest but not logged to the CRM or Notion unless you say "log 4 anyway". Default: confidential, vertraulich, strictly private, under NDA, subject to NDA, do not forward, do not share, nicht weiterleiten, privileged. Add project code names or other words. |
+| `keep_digests_days` | Local digest copies older than this many days are deleted. Default 30. |
 | `last_run` | Timestamp of the last successful run. Written by the skill. |
 
 ### Tracker keys

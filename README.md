@@ -13,7 +13,7 @@ A Claude plugin that triages your inbox according to **your** priorities.
 
 Setup starts with a short interview about your role and priorities. It comes with starting points for VCs, angels and scouts, founders, sales/BD and operators, and works for any other role too.
 
-It never sends, moves or deletes anything in your mailbox. The only thing it writes there are reply drafts you asked for.
+It never sends, moves or deletes anything in your mailbox. The only thing it writes there are reply drafts you asked for. Attachments are never opened, and emails the sender marks as confidential or under NDA aren't logged (see [Privacy and confidentiality](#privacy-and-confidentiality)).
 
 **On your phone:** turn on Remote Control and the digest (with a push notification) reaches the Claude app on your phone, where you can answer it by voice.
 
@@ -44,6 +44,25 @@ Want logging into your CRM or Notion? Say **"add logging to inbox radar"**, duri
 - "inbox radar dry run": preview, writes nothing
 - "change my inbox radar priorities": rerun part of the interview
 - "add logging to inbox radar": set up the optional add-on
+
+## Privacy and confidentiality
+
+Your inbox is full of other people's personal and confidential information. When Claude reads it, you (or your company) are processing that data, under the GDPR if you're in the EU. Inbox Radar is built to touch as little of it as possible. It can't make you compliant on its own; check with whoever handles data protection for you, including that your Claude plan's data terms fit your use.
+
+**What it does with email**
+- **Reads, never sends.** It searches and reads email and creates reply drafts only when you ask. It never sends, forwards, moves, deletes or flags anything. You review every draft and send it yourself.
+- **Only email.** It never uses file, drive or site tools (OneDrive, SharePoint, Google Drive, Dropbox), chat or calendar, even if your connector offers them, and never follows links in emails.
+- **Attachments stay closed.** It never opens or downloads them. By default it doesn't even name them: the digest, CRM and Notion only say "2 attachments" (`attachments: redact`).
+- **Confidential emails aren't logged.** If the sender marks the email itself as confidential ("Confidential: …", "shared under NDA", "bitte vertraulich behandeln"; `confidential_terms`, which you can extend), it shows up in your digest marked "confidential · not logged" and nothing goes to your CRM or Notion. Signature disclaimers, an NDA still to come ("data room after an NDA") and attachment labels don't count, so normal deal emails are logged as usual. If you say "log 4 anyway", it logs the name, website, stage, owner, source and one-line pitch, nothing more. You can still have replies drafted for it.
+- **Web searches** (to find a company's website) use only the company's name and what it does, never a person's name, an address or text from the email.
+- **Email text is data, not instructions.** Instructions hidden in an email are ignored.
+
+**What's stored, and for how long**
+- On your computer, in `~/.claude/inbox-radar/`: your settings, the list of still-open items (dropped after 14 days, `open_items_max_days`) and a copy of each digest (deleted after 30 days, `keep_digests_days`).
+- In your CRM or Notion (add-on only): business facts about each deal (name, website, contacts, source, a short summary), never the full email. Their retention is up to you.
+- Your voice guide (optional): a short description of how you write, plus a few of your own emails with names, companies, amounts and other details replaced by [brackets].
+
+**Your email connector's permissions.** These rules limit what Inbox Radar does, but your connector's permissions are set when you connect it, not by this plugin, and Microsoft 365 and Gmail connectors often allow more (sending, files). Inbox Radar only needs to read mail and create drafts. To make the rest technically impossible for Claude on your computer, open a Code session and say: *"Block sending, forwarding and deleting email, and file access, in my Claude permissions."* Claude adds deny rules to your settings. With a read-only connection it still works; drafts then appear in chat for you to copy.
 
 ## Make it your own
 
