@@ -110,7 +110,7 @@ For each tracker that logs to Notion:
 
 ### 12. CRM lists
 
-For each tracker that logs to a CRM, list their lists or pipelines and ask which one, which status means "new", and whether to set them as owner. Then read the list's columns and propose a `field_map` (match by meaning: status, owners, a one-line pitch or description, round, round size, …), show it and confirm. Leave out columns an enrichment tool fills by itself. Ask which currency their amounts are in (`currency`).
+For each tracker that logs to a CRM, list their lists or pipelines and ask which one, which status means "new", and whether to set them as owner. Then read the list's columns and propose a `field_map` (match by meaning: status, owners, a one-line pitch or description, round, round size, sector or thesis, business model, technology, market, USP, team, …), show it and confirm. Add the matching skill fields to the tracker's `extract`. Leave out assessment columns people fill when screening (scores, ratings, priority). Ask which currency their amounts are in (`currency`).
 
 ### 13. Copy hand-added Notion entries to the CRM (optional)
 

@@ -136,8 +136,8 @@ New digest pages appear below.
 | `name` | Shown as the digest section ("New deals", "New leads"). |
 | `key` | What one item is: `company`, `person`, `firm` or `subject`. Used for dedupe. |
 | `counts` / `not` | What qualifies and what doesn't, in the user's words. |
-| `extract` | Extra fields to pull from the email, beyond name, contact, website, source and summary. |
+| `extract` | Extra fields to fill, beyond name, contact, website, source, summary and pitch: from the email, and for company facts (`geography`, `sector`, `thesis_tags`, `biz_model`, `technology`, `market`, `usp`, `team_details`) also from the company's website. |
 | `destination` | **Add-on.** Leave out for digest-only. |
-| `destination.crm` | CRM system, list or pipeline, starting stage, owner, and optionally `currency` and a `field_map` from skill fields (`stage`, `owner`, `pitch`, `round`, `round_size`, or anything in `extract`) to the list's column names. |
+| `destination.crm` | CRM system, list or pipeline, starting stage, owner, and optionally `currency` and a `field_map` from skill fields (`stage`, `owner`, `pitch`, `round`, `round_size`, or anything in `extract`) to the list's column names. The pitch and other company facts come from the email plus a short look at the company's own website. |
 | `destination.notion` | Database, owner, starting stage, and `field_map` from skill fields to Notion column names. |
 | `destination.sync_notion_to_crm` | When `enabled`, each run copies Notion pages at `stage` created on or after `since` (and owned by `owners`, if set) into the CRM list if they're missing there. One-way; Notion is never changed. |
